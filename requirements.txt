@@ -1,0 +1,5 @@
+git+https://github.com/silknow/image-retrieval#egg=silknow-image-retrieval
+Flask
+flask_cors==3.0.10
+flask_restx==0.4.0
+werkzeug
