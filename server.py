@@ -14,11 +14,17 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import silknow_image_retrieval as sir
 
 
-model_visual = sir.preload_cnn_model(r'./output_files/models/visual_image_retrieval_v2/')
-model_semantic = sir.preload_cnn_model(r'./output_files/models/visual_and_semantic_retrieval_v2/')
-(tree, labels_tree, data_dict_train, relevant_variables, label2class_list) = sir.preload_kd_tree(r'./output_files/tree_dir/')
+VISUAL_MODEL_NAME = "visual_image_retrieval_v2"
+SEMANTIC_MODEL_NAME = "visual_and_semantic_retrieval_v2"
 
-def process(model):
+model_visual = sir.preload_cnn_model("./output_files/models/" + VISUAL_MODEL_NAME + "/")
+model_semantic = sir.preload_cnn_model("./output_files/models/" + SEMANTIC_MODEL_NAME + "/")
+kd_tree_visual = sir.preload_kd_tree("./output_files/trees/" + VISUAL_MODEL_NAME + "/")
+kd_tree_semantic = sir.preload_kd_tree("./output_files/trees/" + SEMANTIC_MODEL_NAME + "/")
+
+
+def process(model_name, model, kd_tree):
+  (tree, labels_tree, data_dict_train, relevant_variables, label2class_list) = kd_tree
   sir.get_kNN_from_preloaded_cnn_and_tree(
     tree,
     labels_tree,
@@ -28,7 +34,7 @@ def process(model):
     master_file_retrieval="master_file_retrieval.txt",
     master_dir_retrieval=r"./samples/",
     model=model,
-    pred_gt_dir=r"./output_files/pred_gt_dir/",
+    pred_gt_dir="./output_files/preds/" + model_name + "/",
     num_neighbours=20
   )
 
@@ -51,6 +57,7 @@ api = Api(app, doc='/doc')
 cors = CORS(app)
 ns = api.namespace('api', description='Image Retrieval API')
 
+
 @ns.route('/status')
 class status_route(Resource):
     def get(self):
@@ -58,8 +65,7 @@ class status_route(Resource):
 
 
 upload_parser = api.parser()
-upload_parser.add_argument('file', location='files',
-                           type=FileStorage, required=True)
+upload_parser.add_argument('file', location='files', type=FileStorage, required=True)
 @ns.route('/retrieve', methods=['POST'])
 @api.expect(upload_parser)
 class retrieve_route(Resource):
@@ -77,8 +83,8 @@ class retrieve_route(Resource):
         f.write(os.path.join('..', filepath) + '\tImage\n')
 
       # Process image with Visual model
-      visual_uris = process(model_visual)
-      semantic_uris = process(model_semantic)
+      visual_uris = process(model_name=VISUAL_MODEL_NAME, model=model_visual, kd_tree=kd_tree_visual)
+      semantic_uris = process(model_name=SEMANTIC_MODEL_NAME, model=model_semantic, kd_tree=kd_tree_semantic)
 
       return { 'visualUris': visual_uris, 'semanticUris': semantic_uris }
 
