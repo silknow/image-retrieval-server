@@ -28,7 +28,8 @@ def process(model):
     master_file_retrieval="master_file_retrieval.txt",
     master_dir_retrieval=r"./samples/",
     model=model,
-    pred_gt_dir=r"./output_files/pred_gt_dir/"
+    pred_gt_dir=r"./output_files/pred_gt_dir/",
+    num_neighbours=20
   )
 
   uris = list()
