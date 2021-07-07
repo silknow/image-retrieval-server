@@ -99,8 +99,13 @@ class retrieve_route(Resource):
         Path(os.path.dirname(filepath)).mkdir(parents=True, exist_ok=True)
         f.save(filepath)
 
+        collection_file = os.path.join("samples", "collection.txt")
+        # Remove previous collection file if it exists
+        if os.path.exists(collection_file):
+            os.remove(collection_file)
+
         # Add image to list of images to process
-        with open(os.path.join("samples", "collection.txt"), "w") as f:
+        with open(collection_file, "w") as f:
             f.write("#image\t#Label\n")
             f.write(os.path.join("..", filepath) + "\tImage\n")
 
@@ -110,6 +115,7 @@ class retrieve_route(Resource):
             model=model_visual,
             kd_tree=kd_tree_visual,
         )
+
         semantic_uris = process(
             model_name=SEMANTIC_MODEL_NAME,
             model=model_semantic,
