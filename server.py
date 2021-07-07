@@ -51,9 +51,8 @@ def process(model_name, model, kd_tree):
         pred_gt_dir="./output_files/preds/" + model_name + "/",
         num_neighbors=20,
     )
-
     uris = list()
-    with open("output_files/pred_gt_dir/kNN_LUT.csv") as csv_file:
+    with open("output_files/preds/" + model_name + "/kNN_LUT.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         next(csv_reader, None)  # skip the headers
         for row in csv_reader:
