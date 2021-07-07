@@ -49,7 +49,7 @@ def process(model_name, model, kd_tree):
         master_dir_retrieval=r"./samples/",
         model=model,
         pred_gt_dir="./output_files/preds/" + model_name + "/",
-        num_neighbours=20,
+        num_neighbors=20,
     )
 
     uris = list()
